@@ -10,3 +10,9 @@
 .katex {
     display: inline;
   }
+
+  .latex-clipboard{
+    overflow: hidden;
+    width: 500px;
+    margin:auto;
+  }
