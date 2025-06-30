@@ -2,18 +2,20 @@ import "./Mathbox.css"
 import { useEffect, useState } from "react";
 import katex from "katex";
 import Mathblock from './Mathblock'
-import { BracketBlock } from "./BracketBlock";
-import { FractionBlock } from "./FractionBlock";
-import { SqrtBlock } from "./SqrtBlock";
+import { BracketBlock } from "./Blocks/BracketBlock";
 import Caret from "./Caret";
-import { IntBlock } from "./IntBlock";
-import { DiffBlock } from "./DiffBlock";
-import { PowerBlock } from "./PowerBlock";
-import { SubBlock } from "./SubBlock";
-import { LimitBlock } from "./LimitBlock";
-import { SumBlock } from "./SumBlock";
-import { MatrixBlock } from "./MatrixBlock";
-import { VectorBlock } from "./VectorBlock";
+import { IntBlock } from "./Blocks/IntBlock";
+import { LatexRender } from "./LatexRender";
+
+import { FractionBlock } from "./Blocks/FractionBlock";
+import { SqrtBlock } from "./Blocks/SqrtBlock";
+import { DiffBlock } from "./Blocks/DiffBlock";
+import { PowerBlock } from "./Blocks/PowerBlock";
+import { SubBlock } from "./Blocks/SubBlock";
+import { LimitBlock } from "./Blocks/LimitBlock";
+import { SumBlock } from "./Blocks/SumBlock";
+import { MatrixBlock } from "./Blocks/MatrixBlock";
+import { VectorBlock } from "./Blocks/VectorBlock";
 
 export default function Mathbox() {
     const [focused, setFocused] = useState(false);
@@ -22,6 +24,7 @@ export default function Mathbox() {
     const [focusedBlock, setFocusedBlock] = useState<Mathblock>(new Mathblock(null, null));
     const [outerMathblock, setOuterMathBlock] = useState(new Mathblock(null, setFocusedBlock));
     const [caret, setCaret] = useState(new Caret());
+    const [history, setHistory] = useState<string[]>([]);
     useEffect(() => {
         outerMathblock.focusFunc = setFocusedBlock;
         if (outerMathblock.caret === null)
@@ -34,6 +37,19 @@ export default function Mathbox() {
         if (focusedBlock === null)
             return;
         e.preventDefault();
+        const value = e.key.toString();
+        const caretPos = focusedBlock.items.indexOf(caret);
+        if (caretPos > 0) {
+            const last = focusedBlock.items[caretPos - 1]?.toString();
+            if (value == last) {
+                console.log("found match")
+                const temp = focusedBlock.items[caretPos - 1]?.toString();
+                const vector = "\\vec{" + temp + "}";
+                focusedBlock.items[caretPos - 1] = vector;
+                setText(outerMathblock.render())
+                return;
+            }
+        }
         if (e.key === 'Backspace') {
             focusedBlock.removeItem();
         }
@@ -133,19 +149,12 @@ export default function Mathbox() {
             }
         }
         else if (/^[a-zA-Z0-9]$/.test(e.key)) {
-            focusedBlock.addItem(e.key);
+            focusedBlock.addItem(e.key.toString());
         }
         setText(outerMathblock.render())
     };
 
-    function LatexRender(text: string) {
-        const html = katex.renderToString(text, {
-            throwOnError: false,
-            displayMode: false, // false for inline math
-        });
 
-        return <div dangerouslySetInnerHTML={{ __html: html }} />;
-    }
     function ClipboardText(text: string) {
         navigator.clipboard.writeText(text);
         const alertDiv = document.createElement("div");

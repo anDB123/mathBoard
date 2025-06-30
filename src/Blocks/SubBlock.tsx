@@ -1,8 +1,8 @@
-import type Caret from "./Caret";
-import Mathblock from "./Mathblock";
+import type Caret from "../Caret";
+import Mathblock from "../Mathblock";
 
 
-export class FractionBlock extends Mathblock {
+export class SubBlock extends Mathblock {
     blocks: Mathblock[] = [];
     parent: Mathblock | null;
     currentSide = 0;
@@ -18,9 +18,9 @@ export class FractionBlock extends Mathblock {
         this.blocks[this.currentSide].getFocus(caret);
     }
     render() {
-        let renderedMath = "\\frac{";
+        let renderedMath = "{";
         renderedMath += this.blocks[0].render();
-        renderedMath += "}{";
+        renderedMath += "}_{";
         renderedMath += this.blocks[1].render();
         renderedMath += "}";
         return renderedMath;

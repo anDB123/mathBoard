@@ -1,5 +1,5 @@
-import type Caret from "./Caret";
-import Mathblock from "./Mathblock";
+import type Caret from "../Caret";
+import Mathblock from "../Mathblock";
 
 
 export class BracketBlock extends Mathblock {
