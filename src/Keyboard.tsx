@@ -14,9 +14,9 @@ export default function Keyboard() {
         'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.',
     ];
     const mathKeys =
-        ['\\nabla', '?', '?', '?', '?', '?', '?', '{\\square}_{\\square}', '?', '\\infty',
-            '+', '-', '×', '÷', '\\frac{d\\square}{d\\square}', '\\int_{\\square}^{\\square}', '\\frac{\\square}{\\square}', '{\\square}^{\\square}', '\\sqrt{}', '()',
-            '?', '?', '?', '\\lim\\limits_{\\square \\to \\square}', '\\sum_{\\square}^{\\square}', '?', 'mx', '?', '?', '?'];
+        ['\\nabla', '\\sin', '\\cos', '\\tan', 'e^\\square', 'log', '\\times 10^{\\square}', '{\\square}_{\\square}', '?', '\\infty',
+            '+', '-', '\\times ', '÷', '\\frac{d\\square}{d\\square}', '\\int_{\\square}^{\\square}', '\\frac{\\square}{\\square}', '{\\square}^{\\square}', '\\sqrt{}', '()',
+            '\\pm', '?', '?', '\\lim\\limits_{\\square \\to \\square}', '\\sum_{\\square}^{\\square}', '?', 'mx', '?', '?', '?'];
 
     const [curKeys, setCurKeys] = useState(keys);
     const [litKeys, setLitKeys] = useState(Array(keys.length).fill(false));
@@ -31,10 +31,14 @@ export default function Keyboard() {
 
             if (keysLower.includes(e.key)) {
                 const keyPos = keysLower.indexOf(e.key);
+                if (litKeys[keyPos])
+                    return;
                 setLitKeys(litKeys.map((lit, index) => index === keyPos ? true : lit));
             }
             if (keys.includes(e.key)) {
                 const keyPos = keys.indexOf(e.key);
+                if (litKeys[keyPos])
+                    return;
                 setLitKeys(litKeys.map((lit, index) => index === keyPos ? true : lit));
             }
         };

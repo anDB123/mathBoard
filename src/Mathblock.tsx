@@ -59,13 +59,12 @@ export default class Mathblock {
         else
             this.items.splice(caretPos - 1, 1);
     }
-    delete(caret: Caret | null, block: Mathblock) {
-        this.parent?.delete(this.caret, this);
+    delete(caret: Caret | null) {
+        this.parent?.delete(this.caret);
     }
     submit(caret: Caret | null = null) {
         if (this.parent === null)//ignore if we are at root
             return
-        console.log('trying to submit')
         this.parent?.submit(this.caret);
         this.removeCaret()
     }
@@ -95,7 +94,7 @@ export default class Mathblock {
         if (caretPos === this.items.length - 1) {
             if (this.parent === null)
                 return
-            this.parent?.rightEdge(this.caret);
+            this.parent?.rightEdge(this.caret, this);
             this.removeCaret();
         }
         else {

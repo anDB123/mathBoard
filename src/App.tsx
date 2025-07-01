@@ -1,7 +1,7 @@
 
 import './App.css'
 import Keyboard from './Keyboard'
-import Mathbox from './mathbox'
+import Mathbox from './Mathbox'
 
 function App() {
   return (

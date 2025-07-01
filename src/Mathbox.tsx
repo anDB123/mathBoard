@@ -16,6 +16,12 @@ import { LimitBlock } from "./Blocks/LimitBlock";
 import { SumBlock } from "./Blocks/SumBlock";
 import { MatrixBlock } from "./Blocks/MatrixBlock";
 import { VectorBlock } from "./Blocks/VectorBlock";
+import { SinBlock } from "./Blocks/SinBlock";
+import { CosBlock } from "./Blocks/CosBlock";
+import { TanBlock } from "./Blocks/TanBlock";
+import { ExpBlock } from "./Blocks/ExpBlock";
+import { LogBlock } from "./Blocks/LogBlock";
+import { TenPowerBlock } from "./Blocks/TenPowerBlock";
 
 export default function Mathbox() {
     const [focused, setFocused] = useState(false);
@@ -70,7 +76,7 @@ export default function Mathbox() {
             if (e.key === 'S')
                 focusedBlock.addItem('-');
             if (e.key === 'D')
-                focusedBlock.addItem('×');
+                focusedBlock.addItem('\\times ');
             if (e.key === 'F')
                 focusedBlock.addItem('÷');
             if (e.key === '=')
@@ -143,6 +149,42 @@ export default function Mathbox() {
             }
             if (e.key === 'M') {
                 const newBlock = new MatrixBlock(focusedBlock, setFocusedBlock);
+                focusedBlock.addItem(newBlock);
+                focusedBlock.removeCaret();
+                newBlock.getFocus(caret);
+            }
+            if (e.key === 'W') {
+                const newBlock = new SinBlock(focusedBlock, setFocusedBlock);
+                focusedBlock.addItem(newBlock);
+                focusedBlock.removeCaret();
+                newBlock.getFocus(caret);
+            }
+            if (e.key === 'E') {
+                const newBlock = new CosBlock(focusedBlock, setFocusedBlock);
+                focusedBlock.addItem(newBlock);
+                focusedBlock.removeCaret();
+                newBlock.getFocus(caret);
+            }
+            if (e.key === 'R') {
+                const newBlock = new TanBlock(focusedBlock, setFocusedBlock);
+                focusedBlock.addItem(newBlock);
+                focusedBlock.removeCaret();
+                newBlock.getFocus(caret);
+            }
+            if (e.key === 'T') {
+                const newBlock = new ExpBlock(focusedBlock, setFocusedBlock);
+                focusedBlock.addItem(newBlock);
+                focusedBlock.removeCaret();
+                newBlock.getFocus(caret);
+            }
+            if (e.key === 'Y') {
+                const newBlock = new LogBlock(focusedBlock, setFocusedBlock);
+                focusedBlock.addItem(newBlock);
+                focusedBlock.removeCaret();
+                newBlock.getFocus(caret);
+            }
+            if (e.key === 'U') {
+                const newBlock = new TenPowerBlock(focusedBlock, setFocusedBlock);
                 focusedBlock.addItem(newBlock);
                 focusedBlock.removeCaret();
                 newBlock.getFocus(caret);
