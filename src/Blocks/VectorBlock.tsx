@@ -1,7 +1,7 @@
 import Mathblock from "../Mathblock";
 import FunctionBlock from "../FunctionBlock";
 
-export class TenPowerBlock extends FunctionBlock {
+export class VectorBlock extends FunctionBlock {
     rows = 3;
     columns = 1;
     constructor(parent: Mathblock, focusFunc: (block: Mathblock) => void) {

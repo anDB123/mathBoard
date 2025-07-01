@@ -1,6 +1,5 @@
 import "./Mathbox.css"
 import { useEffect, useState } from "react";
-import katex from "katex";
 import Mathblock from './Mathblock'
 import { BracketBlock } from "./Blocks/BracketBlock";
 import Caret from "./Caret";
