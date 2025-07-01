@@ -16,7 +16,7 @@ export default function Keyboard() {
     const mathKeys =
         ['\\nabla', '\\sin', '\\cos', '\\tan', 'e^\\square', 'log', '\\times 10^{\\square}', '{\\square}_{\\square}', '?', '\\infty',
             '+', '-', '\\times ', '÷', '\\frac{d\\square}{d\\square}', '\\int_{\\square}^{\\square}', '\\frac{\\square}{\\square}', '{\\square}^{\\square}', '\\sqrt{}', '()',
-            '\\pm', '?', '?', '\\lim\\limits_{\\square \\to \\square}', '\\sum_{\\square}^{\\square}', '?', 'mx', '?', '?', '?'];
+            '\\pm', '?', '?', '\\lim\\limits_{\\square \\to \\square}', '\\sum_{\\square}^{\\square}', 'vec', 'mx', '?', '?', '?'];
 
     const [curKeys, setCurKeys] = useState(keys);
     const [litKeys, setLitKeys] = useState(Array(keys.length).fill(false));

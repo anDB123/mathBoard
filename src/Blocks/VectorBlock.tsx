@@ -8,6 +8,7 @@ export class VectorBlock extends FunctionBlock {
         super(parent, focusFunc);
         this.blocks.push(new Mathblock(this, focusFunc));
         this.blocks.push(new Mathblock(this, focusFunc));
+        this.blocks.push(new Mathblock(this, focusFunc));
     }
     render() {
         let renderedMath = "\\begin{matrix}";

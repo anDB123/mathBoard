@@ -8,7 +8,7 @@ export class SubBlock extends FunctionBlock {
         this.blocks.push(new Mathblock(this, focusFunc));
     }
     render() {
-        let renderedMath = "\\{";
+        let renderedMath = "{";
         renderedMath += this.blocks[0].render();
         renderedMath += "}_{";
         renderedMath += this.blocks[1].render();

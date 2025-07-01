@@ -6,6 +6,7 @@ export class SumBlock extends FunctionBlock {
         super(parent, focusFunc);
         this.blocks.push(new Mathblock(this, focusFunc));
         this.blocks.push(new Mathblock(this, focusFunc));
+        this.blocks.push(new Mathblock(this, focusFunc));
     }
     render() {
         let renderedMath = "\\displaystyle\\sum_{";
