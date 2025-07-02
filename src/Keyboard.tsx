@@ -4,19 +4,39 @@ import { useEffect, useState } from 'react';
 import { LatexRender } from './LatexRender';
 export default function Keyboard() {
     const keys = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
         'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
         'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';',
         'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'
     ];
     const keysLower = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
         'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
         'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
         'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.',
     ];
-    const mathKeys =
-        ['\\nabla', '\\sin', '\\cos', '\\tan', 'e^\\square', 'log', '\\times 10^{\\square}', '{\\square}_{\\square}', '?', '\\infty',
-            '+', '-', '\\times ', '÷', '\\frac{d\\square}{d\\square}', '\\int_{\\square}^{\\square}', '\\frac{\\square}{\\square}', '{\\square}^{\\square}', '\\sqrt{}', '()',
-            '\\pm', '?', '?', '\\lim\\limits_{\\square \\to \\square}', '\\sum_{\\square}^{\\square}', 'vec', 'mx', '?', '?', '?'];
+
+    const shiftKeys = [
+        '^1', '^2', '^3', '^4', '^5', '^6', '^7', '^8', '^9', '^0',
+        'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+        'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';',
+        'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'
+    ];
+
+    const mathKeys = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+        '\\nabla', '\\sin', '\\cos', '\\tan', 'e^\\square', 'log', '\\times 10^{\\square}', '{\\square}_{\\square}', '?', '\\infty',
+        '+', '-', '\\times ', '÷', '\\frac{d\\square}{d\\square}', '\\int_{\\square}^{\\square}', '\\frac{\\square}{\\square}', '{\\square}^{\\square}', '\\sqrt{}', '()',
+        '\\pm', '?', '?', '\\lim\\limits_{\\square \\to \\square}', '\\sum_{\\square}^{\\square}', 'vec', 'mx', '?', '?', '?'
+    ];
+
+    const shiftMathKeys = [
+        '^1', '^2', '^3', '^4', '^5', '^6', '^7', '^8', '^9', '^0',
+        '\\nabla', '\\sin', '\\cos', '\\tan', 'e^\\square', 'log', '\\times 10^{\\square}', '{\\square}_{\\square}', '?', '\\infty',
+        '+', '-', '\\times ', '÷', '\\frac{d\\square}{d\\square}', '\\int_{\\square}^{\\square}', '\\frac{\\square}{\\square}', '{\\square}^{\\square}', '\\sqrt{}', '()',
+        '\\pm', '?', '?', '\\lim\\limits_{\\square \\to \\square}', '\\sum_{\\square}^{\\square}', 'vec', 'mx', '?', '?', '?'
+    ];
+
 
     const [curKeys, setCurKeys] = useState(keys);
     const [litKeys, setLitKeys] = useState(Array(keys.length).fill(false));
@@ -25,9 +45,16 @@ export default function Keyboard() {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Check if CapsLock is on and switch to math keys if it is
             if ((e.getModifierState('CapsLock')))
-                setCurKeys(mathKeys);
-            else
-                setCurKeys(keys);
+                if (e.shiftKey)
+                    setCurKeys(shiftMathKeys);
+                else
+                    setCurKeys(mathKeys);
+            else {
+                if (e.shiftKey)
+                    setCurKeys(shiftKeys);
+                else
+                    setCurKeys(keys);
+            }
 
             if (keysLower.includes(e.key)) {
                 const keyPos = keysLower.indexOf(e.key);
