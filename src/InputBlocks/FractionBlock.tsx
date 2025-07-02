@@ -1,10 +1,9 @@
 import Mathblock from "../Mathblock";
-import FunctionBlock from "../FunctionBlock";
+import InputBlock from "../InputBlock";
 
-export class FractionBlock extends FunctionBlock {
+export class FractionBlock extends InputBlock {
     constructor(parent: Mathblock, focusFunc: (block: Mathblock) => void) {
         super(parent, focusFunc);
-        this.blocks.push(new Mathblock(this, focusFunc));
         this.blocks.push(new Mathblock(this, focusFunc));
     }
     render() {

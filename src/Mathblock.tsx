@@ -41,9 +41,9 @@ export default class Mathblock {
         const caretPos = this.items.indexOf(this.caret);
         this.items.splice(caretPos, 0, newItem);
     }
-    addBlock(newBlock: Mathblock) {
-        if (this.caret) {
-            this.addItem(newBlock);
+    addBlock(newBlock: Mathblock, shiftFocus = true) {
+        this.addItem(newBlock);
+        if (this.caret && shiftFocus) {
             newBlock.getFocus(this.caret);
             this.removeCaret();
         }

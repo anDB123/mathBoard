@@ -1,26 +1,26 @@
 import "./Mathbox.css"
 import { useEffect, useState } from "react";
 import Mathblock from './Mathblock'
-import { BracketBlock } from "./Blocks/BracketBlock";
+import { BracketBlock } from "./FunctionBlocks/BracketBlock";
 import Caret from "./Caret";
-import { IntBlock } from "./Blocks/IntBlock";
+import { IntBlock } from "./FunctionBlocks/IntBlock";
 import { LatexRender } from "./LatexRender";
 
-import { FractionBlock } from "./Blocks/FractionBlock";
-import { SqrtBlock } from "./Blocks/SqrtBlock";
-import { DiffBlock } from "./Blocks/DiffBlock";
-import { PowerBlock } from "./Blocks/PowerBlock";
-import { SubBlock } from "./Blocks/SubBlock";
-import { LimitBlock } from "./Blocks/LimitBlock";
-import { SumBlock } from "./Blocks/SumBlock";
-import { MatrixBlock } from "./Blocks/MatrixBlock";
-import { VectorBlock } from "./Blocks/VectorBlock";
-import { SinBlock } from "./Blocks/SinBlock";
-import { CosBlock } from "./Blocks/CosBlock";
-import { TanBlock } from "./Blocks/TanBlock";
-import { ExpBlock } from "./Blocks/ExpBlock";
-import { LogBlock } from "./Blocks/LogBlock";
-import { TenPowerBlock } from "./Blocks/TenPowerBlock";
+import { FractionBlock } from "./InputBlocks/FractionBlock";
+import { SqrtBlock } from "./FunctionBlocks/SqrtBlock";
+import { DiffBlock } from "./FunctionBlocks/DiffBlock";
+import { PowerBlock } from "./InputBlocks/PowerBlock";
+import { SubBlock } from "./InputBlocks/SubBlock";
+import { LimitBlock } from "./FunctionBlocks/LimitBlock";
+import { SumBlock } from "./FunctionBlocks/SumBlock";
+import { MatrixBlock } from "./FunctionBlocks/MatrixBlock";
+import { VectorBlock } from "./FunctionBlocks/VectorBlock";
+import { SinBlock } from "./FunctionBlocks/SinBlock";
+import { CosBlock } from "./FunctionBlocks/CosBlock";
+import { TanBlock } from "./FunctionBlocks/TanBlock";
+import { ExpBlock } from "./FunctionBlocks/ExpBlock";
+import { LogBlock } from "./FunctionBlocks/LogBlock";
+import { TenPowerBlock } from "./FunctionBlocks/TenPowerBlock";
 
 const shiftedNumbers = ['!', '@', '£', '$', '%', '^', '&', '*', '(', ')']
 const shiftedNumberMap: { [key: string]: string } = {
@@ -36,6 +36,37 @@ const shiftedNumberMap: { [key: string]: string } = {
     ')': '0',
 };
 
+const blocksMap = {
+    'q': "\\nabla ",
+    'w': SinBlock,
+    'e': CosBlock,
+    'r': TanBlock,
+    't': ExpBlock,
+    'y': LogBlock,
+    'u': TenPowerBlock,
+    'i': SubBlock,
+    'o': '?',
+    'p': '\\infty ',
+    'a': '+',
+    's': '-',
+    'd': '\\times ',
+    'f': '÷',
+    'g': DiffBlock,
+    'h': IntBlock,
+    'j': FractionBlock,
+    'k': PowerBlock,
+    'l': SqrtBlock,
+    ';': BracketBlock,
+    'z': '\\pm ',
+    'x': '?',
+    'c': '?',
+    'v': LimitBlock,
+    'b': SumBlock,
+    'n': VectorBlock,
+    'm': MatrixBlock,
+    ',': '?',
+    '.': '?',
+}
 
 export default function Mathbox() {
     const [focused, setFocused] = useState(false);
@@ -58,19 +89,7 @@ export default function Mathbox() {
         if (focusedBlock === null)
             return;
         e.preventDefault();
-        const value = e.key.toString();
-        const caretPos = focusedBlock.items.indexOf(caret);
-        if (caretPos > 0) {
-            const last = focusedBlock.items[caretPos - 1]?.toString();
-            if (value == last) {
-                console.log("found match")
-                const temp = focusedBlock.items[caretPos - 1]?.toString();
-                const vector = "\\vec{" + temp + "}";
-                focusedBlock.items[caretPos - 1] = vector;
-                setText(outerMathblock.render())
-                return;
-            }
-        }
+
         if (e.key === 'Backspace')
             focusedBlock.removeItem();
         if (e.key === 'Enter' || e.key === ' ')
@@ -79,70 +98,40 @@ export default function Mathbox() {
             focusedBlock.left();
         if (e.key === 'ArrowRight')
             focusedBlock.right();
+
         if (/^[0-9]$/.test(e.key))
             focusedBlock.addItem(e.key.toString());
 
         if (shiftedNumbers.includes(e.key)) {
             const number = shiftedNumberMap[e.key.toString()];
-            focusedBlock.addItem('^' + number);
+            const newBlock = new PowerBlock(focusedBlock, setFocusedBlock)
+            focusedBlock.addBlock(newBlock, false);
+            newBlock.blocks[1].addItem(number);
         }
-
         //check if capslock is enabled
         if (e.getModifierState('CapsLock')) {
-            if (e.key === 'A')
-                focusedBlock.addItem('+');
-            if (e.key === 'S')
-                focusedBlock.addItem('-');
-            if (e.key === 'D')
-                focusedBlock.addItem('\\times ');
-            if (e.key === 'F')
-                focusedBlock.addItem('÷');
-            if (e.key === '=')
-                focusedBlock.addItem('=');
-            if (e.key === 'P')
-                focusedBlock.addItem('\\infty ');
-            if (e.key === 'Z')
-                focusedBlock.addItem('\\pm ');
-            if (e.key === 'Q')
-                focusedBlock.addItem('\\nabla ');
-            if (e.key === ';')
-                focusedBlock.addBlock(new BracketBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'J')
-                focusedBlock.addBlock(new FractionBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'L')
-                focusedBlock.addBlock(new SqrtBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'H')
-                focusedBlock.addBlock(new IntBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'G')
-                focusedBlock.addBlock(new DiffBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'K')
-                focusedBlock.addBlock(new PowerBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'I')
-                focusedBlock.addBlock(new SubBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'V')
-                focusedBlock.addBlock(new LimitBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'B')
-                focusedBlock.addBlock(new SumBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'N')
-                focusedBlock.addBlock(new VectorBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'M')
-                focusedBlock.addBlock(new MatrixBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'W')
-                focusedBlock.addBlock(new SinBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'E')
-                focusedBlock.addBlock(new CosBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'R')
-                focusedBlock.addBlock(new TanBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'T')
-                focusedBlock.addBlock(new ExpBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'Y')
-                focusedBlock.addBlock(new LogBlock(focusedBlock, setFocusedBlock));
-            if (e.key === 'U')
-                focusedBlock.addBlock(new TenPowerBlock(focusedBlock, setFocusedBlock));
+            if ((/^[a-zA-Z;,.]$/.test(e.key))) {
+                const block = blocksMap[e.key.toLowerCase()];
+                if (typeof block === 'string') {
+                    focusedBlock.addItem(block);
+                } else if (typeof block === 'function') {
+                    focusedBlock.addBlock(new block(focusedBlock, setFocusedBlock));
+                }
+            }
         }
         else if (/^[a-zA-Z]$/.test(e.key)) {
-            focusedBlock.addItem(e.key.toString());
+            const caretPos = focusedBlock.items.indexOf(caret);
+            const value = e.key.toString();
+            const last = focusedBlock.items[caretPos - 1]?.toString();
+            if (value == last) {
+                const temp = focusedBlock.items[caretPos - 1]?.toString();
+                const vector = "\\vec{" + temp + "}";
+                focusedBlock.items[caretPos - 1] = vector;
+            }
+            else
+                focusedBlock.addItem(e.key.toString());
         }
+
         setText(outerMathblock.render())
     };
 
