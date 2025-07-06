@@ -1,16 +1,16 @@
 import AbstractBlock from "./AbstractBlock";
-import Caret from "./Caret";
+import Cursor from "./Caret";
 
 export default class Mathblock {
-    items: (string | AbstractBlock | Caret)[] = [];
+    items: (string | AbstractBlock | Cursor)[] = [];
     parent: AbstractBlock | null = null;
     focusFunc: (block: Mathblock) => void;
-    caret: Caret | null = null;
+    caret: Cursor | null = null;
     constructor(parent: AbstractBlock | null = null, focusFunc: (block: Mathblock) => void) {
         this.parent = parent;
         this.focusFunc = focusFunc;
     }
-    getFocus(caret: Caret | null, block: AbstractBlock | null = null, right = false) {
+    getFocus(caret: Cursor | null, block: AbstractBlock | null = null, right = false) {
         if (caret) {
             this.caret = caret;
             if (block) {
@@ -48,7 +48,7 @@ export default class Mathblock {
     getBlockPos(block: AbstractBlock): number {
         return this.items.indexOf(block);
     }
-    addItem(newItem: string | AbstractBlock | Caret, shiftFocus = true) {
+    addItem(newItem: string | AbstractBlock | Cursor, shiftFocus = true) {
         const caretPos = this.getCaretPos();
         this.items.splice(caretPos, 0, newItem);
         if (newItem instanceof AbstractBlock && shiftFocus && this.caret !== null) {
@@ -57,7 +57,7 @@ export default class Mathblock {
         }
     }
 
-    addCaret(newCaret: Caret) {
+    addCaret(newCaret: Cursor) {
         this.items.push(newCaret);
         this.caret = newCaret;
     }

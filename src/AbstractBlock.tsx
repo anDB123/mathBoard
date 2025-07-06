@@ -1,4 +1,4 @@
-import Caret from "./Caret";
+import Cursor from "./Caret";
 import Mathblock from "./Mathblock";
 export default class AbstractBlock {
     blocks: Mathblock[] = [];
@@ -18,14 +18,14 @@ export default class AbstractBlock {
             this.parent.removeCaret(); // Clear the caret from the parent Mathblock
         }
     }
-    getFocus(caret: Caret) {
+    getFocus(caret: Cursor) {
         this.blocks[this.currentBlock].getFocus(caret);
     }
     render() {
         // will be overwritten
         return "";
     }
-    delete(caret: Caret) {
+    delete(caret: Cursor) {
         if (this.currentBlock == 0) {
             this.parent.getFocus(caret)
             this.parent.removeItem();
@@ -36,7 +36,7 @@ export default class AbstractBlock {
             this.blocks[this.currentBlock].getFocus(caret);
         }
     }
-    submit(caret: Caret) {
+    submit(caret: Cursor) {
         if (caret)
             if (this.currentBlock < this.blocks.length - 1) {
                 this.currentBlock += 1;
@@ -47,7 +47,7 @@ export default class AbstractBlock {
                 this.parent.getFocus(caret);
             }
     }
-    leftEdge(caret: Caret) {
+    leftEdge(caret: Cursor) {
         if (this.currentBlock === 0) {
             this.parent.getFocus(caret, this);
         }
@@ -56,7 +56,7 @@ export default class AbstractBlock {
             this.blocks[this.currentBlock].getFocus(caret);
         }
     }
-    rightEdge(caret: Caret) {
+    rightEdge(caret: Cursor) {
         if (this.currentBlock === this.blocks.length - 1) {
             this.parent.getFocus(caret, this, true);
         }

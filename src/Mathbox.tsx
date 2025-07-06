@@ -1,8 +1,8 @@
 import "./Mathbox.css"
-import { createContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Mathblock from './Mathblock'
 import { BracketBlock } from "./FunctionBlocks/BracketBlock";
-import Caret from "./Caret";
+import Cursor from "./Caret";
 import { IntBlock } from "./FunctionBlocks/IntBlock";
 import { LatexRender } from "./LatexRender";
 
@@ -22,8 +22,6 @@ import { ExpBlock } from "./FunctionBlocks/ExpBlock";
 import { LogBlock } from "./FunctionBlocks/LogBlock";
 import { TenPowerBlock } from "./FunctionBlocks/TenPowerBlock";
 
-
-const CaretContext = createContext(false);
 
 const shiftedNumbers = ['!', '@', '£', '$', '%', '^', '&', '*', '(', ')']
 const shiftedNumberMap: { [key: string]: string } = {
@@ -77,7 +75,7 @@ export default function Mathbox() {
     // Replace 'any' with the actual type if available, e.g., Mathblock or a base class/interface
     const [focusedBlock, setFocusedBlock] = useState<Mathblock | null>(null);
     const outerMathblock = useMemo(() => new Mathblock(null, setFocusedBlock), [setFocusedBlock]);
-    const caret = useMemo(() => new Caret(outerMathblock), [outerMathblock]);
+    const caret = useMemo(() => new Cursor(outerMathblock), [outerMathblock]);
     useEffect(() => {
         outerMathblock.focusFunc = setFocusedBlock;
         if (outerMathblock.caret === null)
@@ -141,6 +139,7 @@ export default function Mathbox() {
 
 
     function TextCopiedNotification(text: string) {
+        text = text.replace(/❘/g, "");
         navigator.clipboard.writeText(text);
         const alertDiv = document.createElement("div");
         alertDiv.textContent = "Copied to clipboard";
@@ -175,7 +174,7 @@ export default function Mathbox() {
             >
                 {LatexRender(text)}
             </div>
-            <p className="latex-clipboard" onClick={() => TextCopiedNotification(text)}>{text}</p>
+            <p className="latex-clipboard" onClick={() => TextCopiedNotification(text)}>{text && text.length > 1 ? text.replace(/❘/g, "") : "Empty"}</p>
         </div>
     )
 }
