@@ -1,5 +1,5 @@
 import "./Mathbox.css"
-import { useEffect, useMemo, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import Mathblock from './Mathblock'
 import { BracketBlock } from "./FunctionBlocks/BracketBlock";
 import Caret from "./Caret";
@@ -22,6 +22,9 @@ import { ExpBlock } from "./FunctionBlocks/ExpBlock";
 import { LogBlock } from "./FunctionBlocks/LogBlock";
 import { TenPowerBlock } from "./FunctionBlocks/TenPowerBlock";
 
+
+const CaretContext = createContext(false);
+
 const shiftedNumbers = ['!', '@', '£', '$', '%', '^', '&', '*', '(', ')']
 const shiftedNumberMap: { [key: string]: string } = {
     '!': '1',
@@ -36,7 +39,7 @@ const shiftedNumberMap: { [key: string]: string } = {
     ')': '0',
 };
 
-const blocksMap = {
+const blocksMap = { //will add upper case variants for extra space when needed
     'q': "\\nabla ",
     'w': SinBlock,
     'e': CosBlock,
@@ -87,8 +90,9 @@ export default function Mathbox() {
         //if (!focused) return;
         if (focusedBlock === null)
             return;
-        e.preventDefault();
+        e.preventDefault(); //in case the page tries to scroll or smth
 
+        //navigation
         if (e.key === 'Backspace')
             focusedBlock.removeItem();
         if (e.key === 'Enter' || e.key === ' ')
@@ -107,7 +111,7 @@ export default function Mathbox() {
             focusedBlock.addItem(newBlock, false);
             newBlock.blocks[1].addItem(number);
         }
-        //check if capslock is enabled
+        //check if capslock is enabled (we are in "Mathmode")
         if (e.getModifierState('CapsLock')) {
             if ((/^[a-zA-Z;,.]$/.test(e.key))) {
                 const key = e.key.toLowerCase() as keyof typeof blocksMap;
@@ -136,7 +140,7 @@ export default function Mathbox() {
     };
 
 
-    function ClipboardText(text: string) {
+    function TextCopiedNotification(text: string) {
         navigator.clipboard.writeText(text);
         const alertDiv = document.createElement("div");
         alertDiv.textContent = "Copied to clipboard";
@@ -171,7 +175,7 @@ export default function Mathbox() {
             >
                 {LatexRender(text)}
             </div>
-            <p className="latex-clipboard" onClick={() => ClipboardText(text)}>{text}</p>
+            <p className="latex-clipboard" onClick={() => TextCopiedNotification(text)}>{text}</p>
         </div>
     )
 }
