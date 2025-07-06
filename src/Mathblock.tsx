@@ -1,25 +1,28 @@
+import AbstractBlock from "./AbstractBlock";
 import Caret from "./Caret";
 
 export default class Mathblock {
-    items: (string | Mathblock | Caret | null)[];
-    parent: Mathblock | null;
+    items: (string | AbstractBlock | Caret)[] = [];
+    parent: AbstractBlock | null = null;
     focusFunc: (block: Mathblock) => void;
     caret: Caret | null = null;
-    constructor(parent: Mathblock | null = null, focusFunc: (block: Mathblock) => void) {
-        this.items = [];
+    constructor(parent: AbstractBlock | null = null, focusFunc: (block: Mathblock) => void) {
         this.parent = parent;
         this.focusFunc = focusFunc;
     }
-    getFocus(caret: Caret, block: Mathblock | null = null, right = false) {
-        this.focusFunc(this);
-        this.caret = caret;
-        if (block === null)
-            this.items.push(caret);
-        else {
-            let caretPos = this.items.indexOf(block);
-            if (right)
-                caretPos += 1
-            this.items.splice(caretPos, 0, caret);
+    getFocus(caret: Caret | null, block: AbstractBlock | null = null, right = false) {
+        if (caret) {
+            this.caret = caret;
+            if (block) {
+                let pos = this.getBlockPos(block);
+                if (right)
+                    pos += 1;
+                this.items.splice(pos, 0, caret);
+            }
+            else {
+                this.items.push(caret);
+            }
+            this.focusFunc(this);
         }
     }
     render() {
@@ -36,57 +39,68 @@ export default class Mathblock {
             return renderedMath;
         }
     }
-    addItem(newItem: string | Mathblock) {
-        // add caret
-        const caretPos = this.items.indexOf(this.caret);
-        this.items.splice(caretPos, 0, newItem);
+    getCaretPos(): number {
+        if (this.caret === null) {
+            return this.items.length;
+        }
+        return this.items.indexOf(this.caret);
     }
-    addBlock(newBlock: Mathblock, shiftFocus = true) {
-        this.addItem(newBlock);
-        if (this.caret && shiftFocus) {
-            newBlock.getFocus(this.caret);
+    getBlockPos(block: AbstractBlock): number {
+        return this.items.indexOf(block);
+    }
+    addItem(newItem: string | AbstractBlock | Caret, shiftFocus = true) {
+        const caretPos = this.getCaretPos();
+        this.items.splice(caretPos, 0, newItem);
+        if (newItem instanceof AbstractBlock && shiftFocus && this.caret !== null) {
+            newItem.getFocus(this.caret);
             this.removeCaret();
         }
     }
+
     addCaret(newCaret: Caret) {
         this.items.push(newCaret);
         this.caret = newCaret;
     }
     removeCaret() {
         if (this.caret !== null) {
-            const caretPos = this.items.indexOf(this.caret);
+            const caretPos = this.getCaretPos();
             this.items.splice(caretPos, 1);
             this.caret = null;
         }
     }
     removeItem() {
-        const caretPos = this.items.indexOf(this.caret);
+        const caretPos = this.getCaretPos();
         if (caretPos == 0)
-            this.delete(this.caret);
+            this.delete();
         else
             this.items.splice(caretPos - 1, 1);
     }
-    delete(caret: Caret | null) {
-        this.parent?.delete(this.caret);
+    delete() {
+        if (this.caret && this.parent)
+            this.parent.delete(this.caret);
     }
-    submit(caret: Caret | null = null) {
-        if (this.parent === null)//ignore if we are at root
-            return
-        this.parent?.submit(this.caret);
-        this.removeCaret()
+    submit() {
+        if (this.parent && this.caret) {
+            this.parent.submit(this.caret);
+            this.removeCaret()
+        }
     }
     left() {
         //will move the caret to the left
-        const caretPos = this.items.indexOf(this.caret);
+        if (this.caret === null) {
+            return;
+        }
+        const caretPos = this.getCaretPos();
         if (caretPos === 0) {
             if (this.parent === null)
                 return
-            this.parent?.leftEdge(this.caret);
+            this.parent.leftEdge(this.caret);
             this.removeCaret();
         }
         else {
-            if (this.items[caretPos - 1] instanceof Mathblock) {
-                this.items[caretPos - 1].getFocus(this.caret);
+            const prevItem = this.items[caretPos - 1];
+            if (prevItem instanceof AbstractBlock && typeof prevItem.getFocus === "function") {
+                prevItem.getFocus(this.caret);
                 this.removeCaret();
                 return;
             }
@@ -97,27 +111,25 @@ export default class Mathblock {
 
     right() {
         //will move the caret to the left
-        const caretPos = this.items.indexOf(this.caret);
+        if (this.caret === null) {
+            return;
+        }
+        const caretPos = this.getCaretPos();
         if (caretPos === this.items.length - 1) {
             if (this.parent === null)
                 return
-            this.parent?.rightEdge(this.caret, this);
+            this.parent.rightEdge(this.caret);
             this.removeCaret();
         }
         else {
-            if (this.items[caretPos + 1] instanceof Mathblock) {
-                this.items[caretPos + 1].getFocus(this.caret);
+            const nextItem = this.items[caretPos + 1];
+            if (nextItem instanceof AbstractBlock && typeof nextItem.getFocus === "function") {
+                nextItem.getFocus(this.caret);
                 this.removeCaret();
                 return;
             }
             this.items.splice(caretPos, 1);
             this.items.splice(caretPos + 1, 0, this.caret);
         }
-    }
-    leftEdge(caret: Caret, block: Mathblock) {
-        return;
-    }
-    rightEdge(caret: Caret, block: Mathblock) {
-        return;
     }
 };

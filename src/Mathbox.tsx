@@ -1,5 +1,5 @@
 import "./Mathbox.css"
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Mathblock from './Mathblock'
 import { BracketBlock } from "./FunctionBlocks/BracketBlock";
 import Caret from "./Caret";
@@ -73,9 +73,8 @@ export default function Mathbox() {
     const [text, setText] = useState("x+2y=z");
     // Replace 'any' with the actual type if available, e.g., Mathblock or a base class/interface
     const [focusedBlock, setFocusedBlock] = useState<Mathblock | null>(null);
-    const [outerMathblock, setOuterMathBlock] = useState(new Mathblock(null, setFocusedBlock));
-    const [caret, setCaret] = useState(new Caret());
-    const [history, setHistory] = useState<string[]>([]);
+    const outerMathblock = useMemo(() => new Mathblock(null, setFocusedBlock), [setFocusedBlock]);
+    const caret = useMemo(() => new Caret(outerMathblock), [outerMathblock]);
     useEffect(() => {
         outerMathblock.focusFunc = setFocusedBlock;
         if (outerMathblock.caret === null)
@@ -105,17 +104,18 @@ export default function Mathbox() {
         if (shiftedNumbers.includes(e.key)) {
             const number = shiftedNumberMap[e.key.toString()];
             const newBlock = new PowerBlock(focusedBlock, setFocusedBlock)
-            focusedBlock.addBlock(newBlock, false);
+            focusedBlock.addItem(newBlock, false);
             newBlock.blocks[1].addItem(number);
         }
         //check if capslock is enabled
         if (e.getModifierState('CapsLock')) {
             if ((/^[a-zA-Z;,.]$/.test(e.key))) {
-                const block = blocksMap[e.key.toLowerCase()];
+                const key = e.key.toLowerCase() as keyof typeof blocksMap;
+                const block = blocksMap[key];
                 if (typeof block === 'string') {
                     focusedBlock.addItem(block);
                 } else if (typeof block === 'function') {
-                    focusedBlock.addBlock(new block(focusedBlock, setFocusedBlock));
+                    focusedBlock.addItem(new block(focusedBlock, setFocusedBlock));
                 }
             }
         }

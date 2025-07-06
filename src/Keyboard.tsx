@@ -101,7 +101,6 @@ export default function Keyboard() {
                         return (<div className={lit ? "keyboard-key lit-key" : "keyboard-key"}>{LatexRender(key)}</div>);
                     })}
                 </div>
-            )
-            }
+            )}
         </div>);
 }

@@ -1,24 +1,19 @@
 import Mathblock from "./Mathblock";
-import FunctionBlock from "./FunctionBlock";
+import AbstractBlock from "./AbstractBlock";
 
-export default class InputBlock extends FunctionBlock {
+export default class InputBlock extends AbstractBlock {
     constructor(parent: Mathblock, focusFunc: (block: Mathblock) => void) {
-        const caretPos = parent.items.indexOf(parent.caret);
+        const caretPos = parent.getCaretPos();
         if (caretPos === 0) {
             super(parent, focusFunc);
-            this.blocks.push(new Mathblock(this, focusFunc));
-            this.currentBlock = 0;
+            this.addItem(new Mathblock(this, focusFunc));
             return;
         }
         const prevBlock = parent.items[caretPos - 1];
         parent.removeItem();
         super(parent, focusFunc);
-        this.blocks.push(new Mathblock(this, focusFunc));
-
-        if (prevBlock instanceof Mathblock)
-            this.blocks[0].addBlock(prevBlock);
-        else if (typeof prevBlock === "string")
-            this.blocks[0].addItem(prevBlock);
+        this.addItem(new Mathblock(this, focusFunc), false);
+        this.blocks[0].addItem(prevBlock, false);
         this.currentBlock = 1;
     }
 };

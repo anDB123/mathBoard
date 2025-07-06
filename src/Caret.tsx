@@ -1,9 +1,8 @@
 import Mathblock from "./Mathblock";
 
-export default class Caret extends Mathblock {
-    parent: Mathblock | null;
-    constructor(parent: Mathblock | null = null) {
-        super(parent, null);
+export default class Caret {
+    parent: Mathblock;
+    constructor(parent: Mathblock) {
         this.parent = parent;
     }
     render() {
