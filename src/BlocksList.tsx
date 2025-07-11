@@ -1,5 +1,5 @@
 
-import type AbstractBlock from "./AbstractBlock";
+import AbstractBlock from "./AbstractBlock";
 import { BracketBlock } from "./FunctionBlocks/BracketBlock";
 import { CosBlock } from "./FunctionBlocks/CosBlock";
 import { DiffBlock } from "./FunctionBlocks/DiffBlock";
@@ -18,7 +18,9 @@ import { FractionBlock } from "./InputBlocks/FractionBlock";
 import { PowerBlock } from "./InputBlocks/PowerBlock";
 import { SubBlock } from "./InputBlocks/SubBlock";
 
-export const BlocksList: Map<string, AbstractBlock> = new Map();
+
+
+export const BlocksList: Map<string, typeof AbstractBlock> = new Map();
 BlocksList.set('w', SinBlock);
 BlocksList.set('e', CosBlock)
 BlocksList.set('r', TanBlock)

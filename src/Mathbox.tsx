@@ -9,7 +9,6 @@ import { PowerBlock } from "./InputBlocks/PowerBlock";
 import { SymbolBlock } from "./SymbolBlock";
 import { symbolsMap } from "./SymbolsList";
 import { BlocksList } from "./BlocksList";
-import AbstractBlock from "./AbstractBlock";
 import DisplayKeyboard from "./Keyboard";
 
 
