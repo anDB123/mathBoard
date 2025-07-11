@@ -2,7 +2,7 @@ import "./Mathbox.css"
 import { useEffect, useMemo, useState } from "react";
 import Mathblock from './Mathblock'
 import { BracketBlock } from "./FunctionBlocks/BracketBlock";
-import Cursor from "./Caret";
+import Cursor from "./Cursor"
 import { IntBlock } from "./FunctionBlocks/IntBlock";
 import { LatexRender } from "./LatexRender";
 
@@ -74,14 +74,15 @@ export default function Mathbox() {
     const [text, setText] = useState("x+2y=z");
     // Replace 'any' with the actual type if available, e.g., Mathblock or a base class/interface
     const [focusedBlock, setFocusedBlock] = useState<Mathblock | null>(null);
-    const outerMathblock = useMemo(() => new Mathblock(null, setFocusedBlock), [setFocusedBlock]);
-    const caret = useMemo(() => new Cursor(outerMathblock), [outerMathblock]);
+    const [history, setHistory] = useState<string[]>([])
+    const [outerMathblock, setOuterMathBlock] = useState(new Mathblock(null, setFocusedBlock));
+    const cursor = useMemo(() => new Cursor(outerMathblock), [outerMathblock]);
     useEffect(() => {
         outerMathblock.focusFunc = setFocusedBlock;
-        if (outerMathblock.caret === null)
-            outerMathblock.getFocus(caret);
+        if (outerMathblock.cursor === null)
+            outerMathblock.getFocus(cursor);
         setText(outerMathblock.render());
-    }, [caret, outerMathblock]);
+    }, [cursor, outerMathblock]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         //temporariliy for testing, we WANT to always be mathing
@@ -90,6 +91,22 @@ export default function Mathbox() {
             return;
         e.preventDefault(); //in case the page tries to scroll or smth
 
+
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+            setHistory(prev => {
+                const newHistory = prev.slice(0, -1);
+                if (newHistory.length > 0) {
+                    const newOuterBlock = new Mathblock(null, setFocusedBlock);
+                    newOuterBlock.parse(newHistory[newHistory.length - 1], setFocusedBlock);
+                    setOuterMathBlock(newOuterBlock);
+                    newOuterBlock.getFocus(cursor);
+                    setText(newOuterBlock.render());
+                    return newHistory;
+                }
+                return prev;
+            });
+            return;
+        }
         //navigation
         if (e.key === 'Backspace')
             focusedBlock.removeItem();
@@ -122,24 +139,29 @@ export default function Mathbox() {
             }
         }
         else if (/^[a-zA-Z]$/.test(e.key)) {
-            const caretPos = focusedBlock.items.indexOf(caret);
+            const cursorPos = focusedBlock.items.indexOf(cursor);
             const value = e.key.toString();
-            const last = focusedBlock.items[caretPos - 1]?.toString();
+            const last = focusedBlock.items[cursorPos - 1]?.toString();
             if (value == last) {
-                const temp = focusedBlock.items[caretPos - 1]?.toString();
+                const temp = focusedBlock.items[cursorPos - 1]?.toString();
                 const vector = "\\vec{" + temp + "}";
-                focusedBlock.items[caretPos - 1] = vector;
+                focusedBlock.items[cursorPos - 1] = vector;
             }
             else
                 focusedBlock.addItem(e.key.toString());
         }
-
-        setText(outerMathblock.render())
+        const renderedMath = outerMathblock.render();
+        if (renderedMath.replace(/\|/g, "") != history[history.length - 1]) {
+            if (history.length > 1000)
+                setHistory(history.slice(1));
+            setHistory(prev => [...prev, outerMathblock.render().replace(/\|/g, "")]);
+        }
+        setText(renderedMath);
     };
 
 
     function TextCopiedNotification(text: string) {
-        text = text.replace(/❘/g, "");
+        text = text.replace(/\|/g, "");
         navigator.clipboard.writeText(text);
         const alertDiv = document.createElement("div");
         alertDiv.textContent = "Copied to clipboard";
@@ -174,7 +196,7 @@ export default function Mathbox() {
             >
                 {LatexRender(text)}
             </div>
-            <p className="latex-clipboard" onClick={() => TextCopiedNotification(text)}>{text && text.length > 1 ? text.replace(/❘/g, "") : "Empty"}</p>
+            <p className="latex-clipboard" onClick={() => TextCopiedNotification(text)}>{text && text.length > 1 ? text.replace(/\|/g, "") : "Empty"}</p>
         </div>
     )
 }

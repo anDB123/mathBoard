@@ -6,7 +6,7 @@ export default class Cursor {
         this.parent = parent;
     }
     render() {
-        return '❘';
+        return '|';
     }
 
 };

@@ -1,26 +1,26 @@
 import AbstractBlock from "./AbstractBlock";
-import Cursor from "./Caret";
-
+import Cursor from "./Cursor";
+import { BlockTypes } from "./BlockTypes";
 export default class Mathblock {
     items: (string | AbstractBlock | Cursor)[] = [];
     parent: AbstractBlock | null = null;
     focusFunc: (block: Mathblock) => void;
-    caret: Cursor | null = null;
+    cursor: Cursor | null = null;
     constructor(parent: AbstractBlock | null = null, focusFunc: (block: Mathblock) => void) {
         this.parent = parent;
         this.focusFunc = focusFunc;
     }
-    getFocus(caret: Cursor | null, block: AbstractBlock | null = null, right = false) {
-        if (caret) {
-            this.caret = caret;
+    getFocus(cursor: Cursor | null, block: AbstractBlock | null = null, right = false) {
+        if (cursor) {
+            this.cursor = cursor;
             if (block) {
                 let pos = this.getBlockPos(block);
                 if (right)
                     pos += 1;
-                this.items.splice(pos, 0, caret);
+                this.items.splice(pos, 0, cursor);
             }
             else {
-                this.items.push(caret);
+                this.items.push(cursor);
             }
             this.focusFunc(this);
         }
@@ -39,97 +39,136 @@ export default class Mathblock {
             return renderedMath;
         }
     }
-    getCaretPos(): number {
-        if (this.caret === null) {
+    getCursorPos(): number {
+        if (this.cursor === null) {
             return this.items.length;
         }
-        return this.items.indexOf(this.caret);
+        return this.items.indexOf(this.cursor);
     }
     getBlockPos(block: AbstractBlock): number {
         return this.items.indexOf(block);
     }
     addItem(newItem: string | AbstractBlock | Cursor, shiftFocus = true) {
-        const caretPos = this.getCaretPos();
-        this.items.splice(caretPos, 0, newItem);
-        if (newItem instanceof AbstractBlock && shiftFocus && this.caret !== null) {
-            newItem.getFocus(this.caret);
-            this.removeCaret();
+        const cursorPos = this.getCursorPos();
+        this.items.splice(cursorPos, 0, newItem);
+        if (newItem instanceof AbstractBlock && shiftFocus && this.cursor !== null) {
+            newItem.getFocus(this.cursor);
+            this.removeCursor();
         }
     }
 
-    addCaret(newCaret: Cursor) {
-        this.items.push(newCaret);
-        this.caret = newCaret;
+    addCursor(newCursor: Cursor) {
+        this.items.push(newCursor);
+        this.cursor = newCursor;
     }
-    removeCaret() {
-        if (this.caret !== null) {
-            const caretPos = this.getCaretPos();
-            this.items.splice(caretPos, 1);
-            this.caret = null;
+    removeCursor() {
+        if (this.cursor !== null) {
+            const cursorPos = this.getCursorPos();
+            this.items.splice(cursorPos, 1);
+            this.cursor = null;
         }
     }
     removeItem() {
-        const caretPos = this.getCaretPos();
-        if (caretPos == 0)
+        const cursorPos = this.getCursorPos();
+        if (cursorPos == 0)
             this.delete();
         else
-            this.items.splice(caretPos - 1, 1);
+            this.items.splice(cursorPos - 1, 1);
     }
     delete() {
-        if (this.caret && this.parent)
-            this.parent.delete(this.caret);
+        if (this.cursor && this.parent)
+            this.parent.delete(this.cursor);
     }
     submit() {
-        if (this.parent && this.caret) {
-            this.parent.submit(this.caret);
-            this.removeCaret()
+        if (this.parent && this.cursor) {
+            this.parent.submit(this.cursor);
+            this.removeCursor()
         }
     }
     left() {
-        //will move the caret to the left
-        if (this.caret === null) {
+        //will move the cursor to the left
+        if (this.cursor === null) {
             return;
         }
-        const caretPos = this.getCaretPos();
-        if (caretPos === 0) {
+        const cursorPos = this.getCursorPos();
+        if (cursorPos === 0) {
             if (this.parent === null)
                 return
-            this.parent.leftEdge(this.caret);
-            this.removeCaret();
+            this.parent.leftEdge(this.cursor);
+            this.removeCursor();
         }
         else {
-            const prevItem = this.items[caretPos - 1];
+            const prevItem = this.items[cursorPos - 1];
             if (prevItem instanceof AbstractBlock && typeof prevItem.getFocus === "function") {
-                prevItem.getFocus(this.caret);
-                this.removeCaret();
+                prevItem.getFocus(this.cursor);
+                this.removeCursor();
                 return;
             }
-            this.items.splice(caretPos, 1);
-            this.items.splice(caretPos - 1, 0, this.caret);
+            this.items.splice(cursorPos, 1);
+            this.items.splice(cursorPos - 1, 0, this.cursor);
         }
     }
 
     right() {
-        //will move the caret to the left
-        if (this.caret === null) {
+        //will move the cursor to the left
+        if (this.cursor === null) {
             return;
         }
-        const caretPos = this.getCaretPos();
-        if (caretPos === this.items.length - 1) {
+        const cursorPos = this.getCursorPos();
+        if (cursorPos === this.items.length - 1) {
             if (this.parent === null)
                 return
-            this.parent.rightEdge(this.caret);
-            this.removeCaret();
+            this.parent.rightEdge(this.cursor);
+            this.removeCursor();
         }
         else {
-            const nextItem = this.items[caretPos + 1];
+            const nextItem = this.items[cursorPos + 1];
             if (nextItem instanceof AbstractBlock && typeof nextItem.getFocus === "function") {
-                nextItem.getFocus(this.caret);
-                this.removeCaret();
+                nextItem.getFocus(this.cursor);
+                this.removeCursor();
                 return;
             }
-            this.items.splice(caretPos, 1);
-            this.items.splice(caretPos + 1, 0, this.caret);
+            this.items.splice(cursorPos, 1);
+            this.items.splice(cursorPos + 1, 0, this.cursor);
         }
+    }
+    getParentBlock() {
+        if (!this.parent || this.parent.parent)
+            return this;
+        return this.parent.parent;
+    }
+    getNextBlock() {
+        if (!this.parent)
+            return this;
+        return this.parent.nextBlock();
+    }
+
+    parse(text: string, focusFunc: (block: Mathblock) => void): Mathblock {
+        let i = 0;
+        while (i < text.length) {
+            let matched = false;
+            const dummyBlock = new Mathblock(null, focusFunc);
+            for (const blockType of BlockTypes) {
+                const testBlock = new blockType(dummyBlock, focusFunc);
+                const matchLength = testBlock.matchesPattern(text.slice(i));
+                if (matchLength > 0) {
+                    testBlock.parse(text.slice(i, i + matchLength));
+                    this.items.push(testBlock);
+                    testBlock.parent = this;
+                    i += matchLength;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                if (text.startsWith('\\square')) {
+                    i += 7; continue;
+                }
+                this.items.push(text[i]);
+                i += 1;
+            }
+        }
+
+        return this;
     }
 };

@@ -2,28 +2,15 @@ import Mathblock from "../Mathblock";
 import FunctionBlock from "../FunctionBlock";
 
 export class MatrixBlock extends FunctionBlock {
+    patterns = ["\\begin{matrix}{", "} & {", "} & {", "}\\\\{", "} & {", "} & {", "}\\\\{", "} & {", "} & {", "}\\end{matrix}"]
     columns = 3;
     rows = 3;
     constructor(parent: Mathblock, focusFunc: (block: Mathblock) => void) {
         super(parent, focusFunc);
-        for (let i = 0; i < 3; i++)
-            for (let j = 0; j < 3; j++)
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
                 this.blocks.push(new Mathblock(this, focusFunc));
-    }
-    render() {
-        let renderedMath = "\\begin{matrix}";
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.columns; j++) {
-                if (j > 0)
-                    renderedMath += "&";
-                renderedMath += "{";
-                renderedMath += this.blocks[i * this.columns + j].render();
-                renderedMath += "}";
             }
-            if (i != this.rows - 1)
-                renderedMath += "\\\\"
         }
-        renderedMath += "\\end{matrix}";
-        return renderedMath;
     }
 }
