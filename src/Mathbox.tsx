@@ -1,5 +1,5 @@
 import "./Mathbox.css"
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Mathblock from './Mathblock'
 import Cursor from "./Cursor"
 
