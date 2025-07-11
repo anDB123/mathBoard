@@ -169,7 +169,7 @@ export default function Mathbox() {
     }
 
     return (
-        <div>
+        <div className="mathbox-wrapper">
             <div
                 tabIndex={0}
                 onClick={() => setFocused(!focused)}

@@ -1,7 +1,8 @@
 .mathbox-outer{
     background-color: #5B5B5B;
-    width: 500px;
-    height:50px;
+    width: 600px;
+    border-radius: 10px;
+    height:100px;
     text-align: left;
     display: flex;
     align-items: center;
@@ -12,9 +13,25 @@
     display: inline;
   }
 
-  .latex-clipboard{
-    overflow: hidden;
-    width: 500px;
-    margin:auto;
-  }
+.latex-clipboard{
+  overflow: hidden;
+  width: 600px;
+  height: 100px;
+  margin:auto;
+  background-color: white;
+  color:black;
+  border-radius: 10px;
+  border-width: 3px;
+  border-style: solid;
+  border-color: black;
 
+}
+.latex-clipboard:hover{
+  border-color: blue;
+  cursor: pointer;
+}
+.mathbox-wrapper{
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+}
