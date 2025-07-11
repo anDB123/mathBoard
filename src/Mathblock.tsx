@@ -1,6 +1,8 @@
 import AbstractBlock from "./AbstractBlock";
 import Cursor from "./Cursor";
 import { BlockTypes } from "./BlockTypes";
+import { SymbolBlock } from "./SymbolBlock";
+import { symbolsMap } from "./SymbolsList";
 export default class Mathblock {
     items: (string | AbstractBlock | Cursor)[] = [];
     parent: AbstractBlock | null = null;
@@ -10,7 +12,7 @@ export default class Mathblock {
         this.parent = parent;
         this.focusFunc = focusFunc;
     }
-    getFocus(cursor: Cursor | null, block: AbstractBlock | null = null, right = false) {
+    getFocus(cursor: Cursor | null, block: AbstractBlock | SymbolBlock | null = null, right = false) {
         if (cursor) {
             this.cursor = cursor;
             if (block) {
@@ -45,7 +47,7 @@ export default class Mathblock {
         }
         return this.items.indexOf(this.cursor);
     }
-    getBlockPos(block: AbstractBlock): number {
+    getBlockPos(block: AbstractBlock | SymbolBlock): number {
         return this.items.indexOf(block);
     }
     addItem(newItem: string | AbstractBlock | Cursor, shiftFocus = true) {
@@ -153,15 +155,23 @@ export default class Mathblock {
                 const matchLength = testBlock.matchesPattern(text.slice(i));
                 if (matchLength > 0) {
                     testBlock.parse(text.slice(i, i + matchLength));
-                    this.items.push(testBlock);
+                    this.addItem(testBlock);
                     testBlock.parent = this;
                     i += matchLength;
                     matched = true;
                     break;
                 }
             }
+            for (const [, value] of symbolsMap) {
+                if (text.slice(i).startsWith(value)) {
+                    matched = true;
+                    this.addItem(new SymbolBlock(this, value));
+                    i += value.length;
+                    break;
+                }
+            }
             if (!matched) {
-                if (text.startsWith('\\square')) {
+                if (text.slice(i).startsWith('\\square')) {
                     i += 7; continue;
                 }
                 this.items.push(text[i]);

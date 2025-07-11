@@ -17,7 +17,8 @@ import { TenPowerBlock } from "./FunctionBlocks/TenPowerBlock";
 import { VectorBlock } from "./FunctionBlocks/VectorBlock";
 import type AbstractBlock from "./AbstractBlock";
 
-export const BlockTypes: (new (...args: any[]) => AbstractBlock)[] = [ //need to order these from most to least complex
+export const BlockTypes: (new (...args: any[]) => AbstractBlock)[] = [
+    //need to order these from most to least complex
     MatrixBlock,
     VectorBlock,
     IntBlock,

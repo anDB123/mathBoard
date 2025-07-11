@@ -16,7 +16,8 @@ export default class AbstractBlock {
         if (focus) {
             this.currentBlock = this.blocks.length - 1;
             item.getFocus(this.parent.cursor);
-            this.parent.removeCursor(); // Clear the cursor from the parent Mathblock
+            this.parent.removeCursor();
+            // Clear the cursor from the parent Mathblock
         }
     }
     getFocus(cursor: Cursor) {
@@ -116,7 +117,6 @@ export default class AbstractBlock {
             if (!text.slice(j).startsWith(this.patterns[i + 1]))
                 return -1;
         }
-
         console.log(`matched pattern: ${text.slice(0, j + this.patterns[this.patterns.length - 1].length)}`);
         return j + this.patterns[this.patterns.length - 1].length;
     }
