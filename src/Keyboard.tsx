@@ -1,8 +1,8 @@
 //Keyboard.tsx
 import './Keyboard.css'
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { LatexRender } from './LatexRender';
-export default function DisplayKeyboard(handleKey: (key: string, shifting: boolean, capping: boolean) => void) {
+export default function DisplayKeyboard(handleKey: (key: string, shifting: boolean, capping: boolean, modifying: boolean) => void) {
     const keys = [
         '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
         'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
@@ -35,41 +35,50 @@ export default function DisplayKeyboard(handleKey: (key: string, shifting: boole
     const [shifting, setShifting] = useState(false);
     const [capping, setCapping] = useState(false);
     const [spacing, setSpacing] = useState(false);
+    const [modifying, setModifying] = useState(false);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+        setCapping(e.getModifierState('CapsLock'));
+        setShifting(e.shiftKey);
+        setModifying(e.metaKey || e.ctrlKey)
+        if (e.key == ' ')
+            setSpacing(true);
+        if (keys.includes(e.key.toLowerCase())) {
+            const keyPos = keys.indexOf(e.key.toLowerCase());
+            setLitKeys(litKeys.map((lit, index) => index === keyPos ? true : lit));
+        }
+        handleKey(e.key, shifting, capping, modifying);
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+        setCapping(e.getModifierState('CapsLock'))
+        setShifting(e.shiftKey)
+        setModifying(e.metaKey || e.ctrlKey)
+        if (e.key == ' ')
+            setSpacing(false);
+        if (keys.includes(e.key.toLowerCase())) {
+            const keyPos = keys.indexOf(e.key.toLowerCase());
+            setLitKeys(litKeys.map((lit, index) => index === keyPos ? false : lit));
+        }
+    };
+
+    const handleKeyDownCallback = useCallback(handleKeyDown, [keys, litKeys])
+    const handleKeyUpCallback = useCallback(handleKeyUp, [keys, litKeys])
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            setCapping(e.getModifierState('CapsLock'));
-            setShifting(e.shiftKey);
-            if (e.key == ' ')
-                setSpacing(true);
-            if (keys.includes(e.key.toLowerCase())) {
-                const keyPos = keys.indexOf(e.key.toLowerCase());
-                setLitKeys(litKeys.map((lit, index) => index === keyPos ? true : lit));
-            }
-        };
-        const handleKeyUp = (e: KeyboardEvent) => {
-            setCapping(e.getModifierState('CapsLock'))
-            setShifting(e.shiftKey)
-            if (e.key == ' ')
-                setSpacing(false);
-            if (keys.includes(e.key.toLowerCase())) {
-                const keyPos = keys.indexOf(e.key.toLowerCase());
-                setLitKeys(litKeys.map((lit, index) => index === keyPos ? false : lit));
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
+        window.addEventListener('keydown', handleKeyDownCallback);
+        window.addEventListener('keyup', handleKeyUpCallback);
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyDown);
+            window.removeEventListener('keydown', handleKeyDownCallback);
+            window.removeEventListener('keyup', handleKeyUpCallback);
         };
-    }, []);
+    }, [handleKeyDownCallback, handleKeyUpCallback]);
 
     function pressedKey(index: number) {
-        handleKey(keys[index], shifting, capping);
+        handleKey(keys[index], shifting, capping, modifying);
     }
     function pressSpace() {
-        handleKey(' ', shifting, capping);
+        handleKey(' ', shifting, capping, modifying);
     }
 
     return (

@@ -89,6 +89,7 @@ export default class Mathblock {
     }
     left() {
         //will move the cursor to the left
+        console.log("moving cursor left")
         if (this.cursor === null) {
             return;
         }

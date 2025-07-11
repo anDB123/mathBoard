@@ -1,5 +1,5 @@
 import "./Mathbox.css"
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Mathblock from './Mathblock'
 import Cursor from "./Cursor"
 
@@ -29,13 +29,12 @@ const shiftedNumberMap: { [key: string]: string } = {
 
 
 export default function Mathbox() {
-    const [focused, setFocused] = useState(false);
     const [text, setText] = useState("x+2y=z");
     // Replace 'any' with the actual type if available, e.g., Mathblock or a base class/interface
     const [focusedBlock, setFocusedBlock] = useState<Mathblock | null>(null);
     const [history, setHistory] = useState<string[]>([])
     const [outerMathblock, setOuterMathBlock] = useState(new Mathblock(null, setFocusedBlock));
-    const cursor = useMemo(() => new Cursor(outerMathblock), [outerMathblock]);
+    const cursor = new Cursor(outerMathblock);
 
     function undo() {
         setHistory(prev => {
@@ -56,7 +55,12 @@ export default function Mathbox() {
         });
         return;
     }
-    function handleKey(key: string, shifting: boolean, capping: boolean) {
+
+    function handleKey(key: string, shifting: boolean, capping: boolean, modifying: boolean) {
+        if (modifying && key == 'z') {
+            undo();
+            return;
+        }
         key = key.toLowerCase();
         console.log(key);
         if (shifting)
@@ -121,25 +125,15 @@ export default function Mathbox() {
         }
         setText(renderedMath);
     }
+
     useEffect(() => {
         outerMathblock.focusFunc = setFocusedBlock;
-        if (outerMathblock.cursor === null)
+        if (!outerMathblock.cursor) {
             outerMathblock.getFocus(cursor);
-        setText(outerMathblock.render());
-    }, [cursor, outerMathblock]);
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (focusedBlock === null)
-            return;
-        e.preventDefault(); //in case the page tries to scroll or smth
-
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-            undo();
-            return;
         }
-        handleKey(e.key, e.shiftKey, e.getModifierState('CapsLock'));
+    }, []);
 
-    };
+
 
 
     function TextCopiedNotification(text: string) {
@@ -171,9 +165,6 @@ export default function Mathbox() {
     return (
         <div className="mathbox-wrapper">
             <div
-                tabIndex={0}
-                onClick={() => setFocused(!focused)}
-                onKeyDown={handleKeyDown}
                 className="mathbox-outer"
             >
                 {LatexRender(text)}
